@@ -6,6 +6,14 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+const (
+	host     = "localhost"
+	port     = 5432
+	user     = "usr"
+	password = "pwd"
+	dbname   = "products"
+)
+
 func main() {
 	r := gin.Default()
 
