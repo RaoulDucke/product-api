@@ -8,7 +8,7 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/RaolDucke/profuct-api/db"
+	"github.com/RaoulDucke/product-api/internal/db"
 	"github.com/gin-gonic/gin"
 )
 
