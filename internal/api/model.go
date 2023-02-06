@@ -1,7 +1,6 @@
 package api
 
-type Product struct {
-	Identity int64   `json:"id"`
-	Name     string  `json:"title"`
-	Price    float64 `json:"price"`
+type AddProductRequest struct {
+	Title       string `json:"title"`
+	Description string `json: "description"`
 }

@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/RaoulDucke/product-api/internal/api"
 	"github.com/RaoulDucke/product-api/internal/db"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
@@ -40,9 +41,8 @@ func main() {
 
 	repository := db.New(database)
 
-	h := handler.New(repository)
+	h := api.New(repository)
 
-	r.GET("/products", func(c *gin.Context) { h.GetProducts(ctx, c) })
 	r.POST("/products", func(c *gin.Context) { h.AddProduct(ctx, c) })
 
 	r.Run()
