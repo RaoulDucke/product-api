@@ -1,9 +1,10 @@
 package db
 
 import (
-	"context"
 	"database/sql"
 	"errors"
+
+	"golang.org/x/net/context"
 )
 
 type Repository struct {
@@ -40,6 +41,14 @@ func (r *Repository) AddProduct(ctx context.Context, p *Product) error {
 	r.products = append(r.products, p)
 	return nil
 
+	// 	_, err := r.database.ExecContext(ctx, `
+	// 		insert into product (title, price)
+	// 		values ($1,$2)
+	// 	`, p.Title, p.Price)
+	// 	if err != nil {
+	// 		return err
+	// 	}
+	// 	return nil
 }
 
 func (r *Repository) GetProducts(ctx context.Context) ([]*Product, error) {
@@ -65,4 +74,24 @@ func (r *Repository) GetProducts(ctx context.Context) ([]*Product, error) {
 	}
 
 	return result, nil
+}
+
+func (r *Repository) GetProduct(id int64) (*Product, bool) {
+	for _, product := range r.products {
+		if id == product.ID {
+			return product, true
+		}
+
+	}
+	return nil, false
+}
+
+func (r *Repository) DoesProductExist(id int64) bool {
+	for _, product := range r.products {
+		if id == product.ID {
+			return true
+		}
+
+	}
+	return false
 }

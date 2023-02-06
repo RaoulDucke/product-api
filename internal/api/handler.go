@@ -8,14 +8,15 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/RaolDucke/profuct-api/db"
 	"github.com/gin-gonic/gin"
 )
 
 type Handler struct {
-	r *repository.Repository
+	r *db.Repository
 }
 
-func New(repository *repository.Repository) *Handler {
+func New(repository *db.Repository) *Handler {
 	return &Handler{r: repository}
 }
 
@@ -72,12 +73,37 @@ func (h *Handler) GetProducts(ctx context.Context, c *gin.Context) {
 
 }
 
-func convertToDBProduct(p *Product) *repository.Product {
-	return &repository.Product{
+func (h *Handler) getProduct(id int64) (*Product, bool) {
+	product, ok := h.r.GetProduct(id)
+	if ok {
+		return convertToProduct(product), true
+	}
+	return nil, false
+}
+
+func convertToProduct(p *db.Product) *Product {
+	return &Product{
+		Identity: p.ID,
+		Name:     p.Title,
+		Price:    p.Price,
+	}
+}
+
+func convertToDBProduct(p *Product) *db.Product {
+	return &db.Product{
 		Title: p.Name,
 		ID:    p.Identity,
 		Price: p.Price,
 	}
+}
+
+func convertToProducts(products []*db.Product) []*Product {
+	res := make([]*Product, 0, len(products))
+	for _, p := range products {
+		res = append(res, convertToProduct(p))
+	}
+	return res
+
 }
 
 func internalError(c *gin.Context, err error) {
