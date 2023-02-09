@@ -44,6 +44,7 @@ func main() {
 	h := api.New(repository)
 
 	r.POST("/products", func(c *gin.Context) { h.AddProduct(ctx, c) })
+	r.POST("/products/item", func(c *gin.Context) { h.AddProductItem(ctx, c) })
 
 	r.Run()
 }

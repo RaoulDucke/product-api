@@ -7,6 +7,7 @@ import (
 
 	"github.com/RaoulDucke/product-api/internal/db"
 	"github.com/gin-gonic/gin"
+	uuid "github.com/satori/go.uuid"
 )
 
 type Handler struct {
@@ -39,6 +40,29 @@ func (h *Handler) AddProduct(ctx context.Context, c *gin.Context) {
 	}
 }
 
+func (h *Handler) AddProductItem(ctx context.Context, c *gin.Context) {
+	req := new(AddProductItemRequest)
+	err := c.BindJSON(req)
+	if err != nil {
+		internalError(c, err)
+		return
+	}
+	if req.Material == "" {
+		badRequest(c)
+		return
+	}
+	// if req.ProductID <= 0 {
+	// 	badRequest(c)
+	// 	return
+	// }
+	sku := uuid.NewV4()
+
+	err = h.repo.AddProductItem(ctx, sku.String(), req.Material, req.ProductID)
+	if err != nil {
+		internalError(c, err)
+		return
+	}
+}
 func internalError(c *gin.Context, err error) {
 	c.JSON(http.StatusInternalServerError, fmt.Sprintf("internal error: %s", err))
 }
@@ -47,10 +71,10 @@ func badRequest(c *gin.Context) {
 	c.JSON(http.StatusBadRequest, "bad request")
 }
 
-func notFound(c *gin.Context) {
-	c.JSON(http.StatusNotFound, "not found")
-}
+// func notFound(c *gin.Context) {
+// 	c.JSON(http.StatusNotFound, "not found")
+// }
 
-func statusOk(c *gin.Context, val any) {
-	c.JSON(http.StatusOK, val)
-}
+// func statusOk(c *gin.Context, val any) {
+// 	c.JSON(http.StatusOK, val)
+// }
