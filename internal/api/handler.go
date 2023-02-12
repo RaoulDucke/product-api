@@ -51,13 +51,9 @@ func (h *Handler) AddProductItem(ctx context.Context, c *gin.Context) {
 		badRequest(c)
 		return
 	}
-	// if req.ProductID <= 0 {
-	// 	badRequest(c)
-	// 	return
-	// }
 	sku := uuid.NewV4()
 
-	err = h.repo.AddProductItem(ctx, sku.String(), req.Material, req.ProductID)
+	err = h.repo.AddProductItem(ctx, c, sku.String(), req.Material, req.ProductID)
 	if err != nil {
 		internalError(c, err)
 		return

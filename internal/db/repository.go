@@ -3,7 +3,9 @@ package db
 import (
 	"database/sql"
 	"errors"
+	"net/http"
 
+	"github.com/gin-gonic/gin"
 	"golang.org/x/net/context"
 )
 
@@ -35,16 +37,20 @@ func (r *Repository) AddProduct(ctx context.Context, title string, description s
 	return nil
 }
 
-func (r *Repository) AddProductItem(ctx context.Context, sku string, material string, productID int) error {
+func (r *Repository) AddProductItem(ctx context.Context, c *gin.Context, sku string, material string, productID int) error {
 	if material == "" {
 		return errors.New("material is empty")
 	}
-	_, err := r.database.ExecContext(ctx, `
+	_, err := r.database.QueryContext(ctx, `
 			insert into product_item (sku, material, product_id)
 			values ($1,$2,$3)
 		`, sku, material, productID)
 	if err != nil {
-		return err
+		badRequest(c)
 	}
 	return nil
+}
+
+func badRequest(c *gin.Context) {
+	c.JSON(http.StatusBadRequest, "bad request")
 }
