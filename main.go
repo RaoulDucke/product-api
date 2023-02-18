@@ -8,6 +8,7 @@ import (
 
 	"github.com/RaoulDucke/product-api/internal/api"
 	"github.com/RaoulDucke/product-api/internal/db"
+	"github.com/RaoulDucke/product-api/internal/priceapi"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	_ "github.com/lib/pq"
@@ -42,9 +43,10 @@ func main() {
 	repository := db.New(database)
 
 	h := api.New(repository)
+	u := priceapi.New(repository)
 
 	r.POST("/products", func(c *gin.Context) { h.AddProduct(ctx, c) })
 	r.POST("/products/item", func(c *gin.Context) { h.AddProductItem(ctx, c) })
-
+	r.POST("/products/price", func(c *gin.Context) { u.AddProductPrice(ctx, c) })
 	r.Run()
 }

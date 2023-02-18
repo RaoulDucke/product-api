@@ -12,3 +12,10 @@ create table product_item(
     foreign key (product_id)
         REFERENCES product (id)
 );
+
+create table product_price(
+    product_id serial not null,
+    foreign key (product_id)
+        references product (id),
+    price int not null
+);

@@ -3,9 +3,10 @@ package db
 import (
 	"database/sql"
 	"errors"
-	"net/http"
 
-	"github.com/gin-gonic/gin"
+	// "net/http"
+
+	// "github.com/gin-gonic/gin"
 	"golang.org/x/net/context"
 )
 
@@ -37,20 +38,65 @@ func (r *Repository) AddProduct(ctx context.Context, title string, description s
 	return nil
 }
 
-func (r *Repository) AddProductItem(ctx context.Context, c *gin.Context, sku string, material string, productID int) error {
+func (r *Repository) AddProductItem(ctx context.Context, sku string, material string, productID int) error {
 	if material == "" {
 		return errors.New("material is empty")
 	}
-	_, err := r.database.QueryContext(ctx, `
+	// 	var res int64
+	// 	err := r.database.QueryRowContext(ctx, "SELECT id FROMproduct WHERE id = $1", productID).Scan(&res)
+	// 	if err != nil {
+	// 		if err == sql.ErrNoRows {
+	// 			return ErrProductNotFound
+	// 		}
+	// 		return err
+	// 	}
+	var res int64
+	err := r.database.QueryRowContext(ctx, "SELECT id FROMproduct WHERE id = $1", productID).Scan(&res)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return &ErrNotFound{
+				massange: "product not found",
+			}
+		}
+		return err
+	}
+
+	_, err = r.database.ExecContext(ctx, `
 			insert into product_item (sku, material, product_id)
 			values ($1,$2,$3)
 		`, sku, material, productID)
 	if err != nil {
-		badRequest(c)
+		return err
 	}
 	return nil
 }
 
-func badRequest(c *gin.Context) {
-	c.JSON(http.StatusBadRequest, "bad request")
+func (r *Repository) AddProductPrice(ctx context.Context, productID int, price int) error {
+	if price <= 0 {
+		return &ErrNotFound{
+			massange: "price <= 0",
+		}
+	}
+	var req int
+	err := r.database.QueryRowContext(ctx, "SELECT id FROM product WHERE id = $1", productID).Scan(&req)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return &ErrNotFound{
+				massange: "product not found",
+			}
+		}
+		return err
+	}
+	_, err = r.database.ExecContext(ctx, `
+			insert into product_price (product_id, price)
+			values ($1,$2)
+		`, productID, price)
+	if err != nil {
+		return err
+	}
+	return nil
 }
+
+// func badRequest(c *gin.Context) {
+// 	c.JSON(http.StatusBadRequest, "bad request")
+// }

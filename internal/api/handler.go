@@ -53,12 +53,21 @@ func (h *Handler) AddProductItem(ctx context.Context, c *gin.Context) {
 	}
 	sku := uuid.NewV4()
 
-	err = h.repo.AddProductItem(ctx, c, sku.String(), req.Material, req.ProductID)
+	err = h.repo.AddProductItem(ctx, sku.String(), req.Material, req.ProductID)
 	if err != nil {
+		_, ok := err.(*db.ErrNotFound)
+		if ok {
+			badRequest(c)
+			return
+		}
+		// if err == db.ErrProductNotFound {
+		// 	badRequest(c)
+		// }
 		internalError(c, err)
 		return
 	}
 }
+
 func internalError(c *gin.Context, err error) {
 	c.JSON(http.StatusInternalServerError, fmt.Sprintf("internal error: %s", err))
 }
